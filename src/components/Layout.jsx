@@ -40,15 +40,25 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                padding: '8px',
+                padding: '4px',
                 borderRadius: '50%',
                 width: '40px',
                 height: '40px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                overflow: 'hidden'
               }}>
-                <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'white' }}>AV</span>
+                <img 
+                  src="/images/pexels-matreding-11911814.jpg" 
+                  alt="Avocado Farm Logo" 
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    objectFit: 'cover'
+                  }}
+                />
               </div>
               <div>
                 <h1 style={{
@@ -56,7 +66,6 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                   fontWeight: 'bold',
                   margin: 0
                 }}>
-                  Avocado Farm AV1
                 </h1>
                 <p style={{
                   fontSize: '12px',

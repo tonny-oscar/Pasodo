@@ -39,7 +39,7 @@ const Homepage = ({ onShowAuth }) => {
               padding: '8px',
               borderRadius: '50%'
             }}>
-              <span style={{ fontSize: '24px' }}>🥑</span>
+              <span style={{ fontSize: '24px' }}></span>
             </div>
             <h2 style={{
               color: 'white',
@@ -47,7 +47,6 @@ const Homepage = ({ onShowAuth }) => {
               fontWeight: 'bold',
               margin: 0
             }}>
-              Avocado Farm AV1
             </h2>
           </div>
           
