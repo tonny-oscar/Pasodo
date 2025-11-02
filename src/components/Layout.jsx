@@ -10,6 +10,7 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
     { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
     { id: 'plot1', label: 'Plot 1', path: '/plot1' },
     { id: 'plot2', label: 'Plot 2', path: '/plot2' },
+    { id: 'plot-map', label: 'Plot Map', path: '/plot-map' },
     { id: 'plants', label: 'Add Plants', path: '/plants' },
     { id: 'replanting', label: 'Replanting', path: '/replanting' },
     { id: 'costs', label: 'Costs', path: '/costs' },

@@ -7,6 +7,7 @@ import Homepage from './pages/Homepage'
 import Dashboard from './pages/Dashboard'
 import Plot1 from './pages/Plot1'
 import Plot2 from './pages/Plot2'
+import PlotMapView from './pages/PlotMapView'
 import AddPlants from './pages/AddPlants'
 import Replanting from './pages/Replanting'
 import CostManagement from './pages/CostManagement'
@@ -220,6 +221,17 @@ const AppContent = () => {
             <ProtectedRoute user={user}>
               <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
                 <AddPlants avocados={currentAvocados} updateAvocado={updateAvocado} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/plot-map" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <PlotMapView avocados={currentAvocados} updateAvocado={updateAvocado} />
               </Layout>
             </ProtectedRoute>
           } 
