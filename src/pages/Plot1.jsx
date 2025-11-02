@@ -1,115 +1,364 @@
 const Plot1 = ({ avocados, updateAvocado, updateReplanting }) => {
   const plot1Trees = avocados.filter(av => av.plot === 'P1')
 
+  const downloadPDF = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Plot 1 (P1) - Avocado Trees Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #16a34a; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f8fafc; font-weight: bold; }
+            .summary { background-color: #dbeafe; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>Avocado Farm AV1 - Plot 1 (P1) Report</h1>
+          <div class="summary">
+            <h3>Plot Summary</h3>
+            <p><strong>Tree Range:</strong> AV/P1/001 - AV/P1/042</p>
+            <p><strong>Total Trees:</strong> 42 avocado trees</p>
+            <p><strong>Planted Trees:</strong> ${plot1Trees.filter(t => t.plantingDate).length} trees</p>
+            <p><strong>Report Generated:</strong> ${new Date().toLocaleDateString()}</p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tree ID</th>
+                <th>Number</th>
+                <th>Planting Date</th>
+                <th>Health Status</th>
+                <th>R1 Date</th>
+                <th>R2 Date</th>
+                <th>R3 Date</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${plot1Trees.map(tree => `
+                <tr>
+                  <td>${tree.id}</td>
+                  <td>AV${tree.number}</td>
+                  <td>${tree.plantingDate || '-'}</td>
+                  <td>${tree.healthStatus || 'healthy'}</td>
+                  <td>${tree.replanting.R1 || '-'}</td>
+                  <td>${tree.replanting.R2 || '-'}</td>
+                  <td>${tree.replanting.R3 || '-'}</td>
+                  <td>${tree.notes || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `
+    
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    printWindow.print()
+  }
+
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-          <span className="text-blue-500">🌱</span>
-          Plot 1 (P1) - Avocado Trees
-        </h2>
-        <div className="mt-2 bg-blue-50 p-4 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div>
+            <h2 style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              color: '#111827',
+              marginBottom: '8px'
+            }}>
+              Plot 1 (P1) - Avocado Trees
+            </h2>
+          </div>
+          <button
+            onClick={downloadPDF}
+            style={{
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
+          >
+            Download PDF
+          </button>
+        </div>
+        
+        <div style={{
+          backgroundColor: '#dbeafe',
+          padding: '20px',
+          borderRadius: '12px',
+          border: '1px solid #93c5fd'
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '20px'
+          }}>
             <div>
-              <p className="text-blue-800 font-medium">Tree Range</p>
-              <p className="text-blue-600">AV/P1/001 - AV/P1/042</p>
+              <p style={{ color: '#1e40af', fontWeight: '600', fontSize: '14px', margin: '0 0 4px 0' }}>Tree Range</p>
+              <p style={{ color: '#1f2937', fontWeight: '500', margin: 0 }}>AV/P1/001 - AV/P1/042</p>
             </div>
             <div>
-              <p className="text-blue-800 font-medium">Total Trees</p>
-              <p className="text-blue-600">42 avocado trees</p>
+              <p style={{ color: '#1e40af', fontWeight: '600', fontSize: '14px', margin: '0 0 4px 0' }}>Total Trees</p>
+              <p style={{ color: '#1f2937', fontWeight: '500', margin: 0 }}>42 avocado trees</p>
             </div>
             <div>
-              <p className="text-blue-800 font-medium">Planted</p>
-              <p className="text-blue-600">{plot1Trees.filter(t => t.plantingDate).length} trees</p>
+              <p style={{ color: '#1e40af', fontWeight: '600', fontSize: '14px', margin: '0 0 4px 0' }}>Planted</p>
+              <p style={{ color: '#1f2937', fontWeight: '500', margin: 0 }}>{plot1Trees.filter(t => t.plantingDate).length} trees</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="px-6 py-4 bg-blue-50 border-b">
-          <h3 className="text-lg font-semibold text-blue-900">Plot 1 Tree Management</h3>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          padding: '20px 24px',
+          backgroundColor: '#f8fafc',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#1f2937',
+            margin: 0
+          }}>
+            Plot 1 Tree Management
+          </h3>
         </div>
         
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{
+            width: '100%',
+            borderCollapse: 'collapse'
+          }}>
+            <thead style={{ backgroundColor: '#f9fafb' }}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tree ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Planting Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Health Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R1 Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R2 Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R3 Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>Tree ID</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>Number</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>Planting Date</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>Health Status</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>R1 Date</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>R2 Date</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>R3 Date</th>
+                <th style={{
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>Notes</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody style={{ backgroundColor: 'white' }}>
               {plot1Trees.map((avocado) => (
-                <tr key={avocado.id} className="hover:bg-blue-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <span className="text-blue-600 mr-2">🌱</span>
-                      <span className="text-sm font-medium text-gray-900">{avocado.id}</span>
+                <tr key={avocado.id} style={{
+                  borderBottom: '1px solid #f3f4f6'
+                }}>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <span style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#1f2937'
+                      }}>
+                        {avocado.id}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
+                  <td style={{ padding: '16px 24px' }}>
+                    <span style={{
+                      padding: '4px 12px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      backgroundColor: '#dbeafe',
+                      color: '#1e40af',
+                      borderRadius: '20px'
+                    }}>
                       AV{avocado.number}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td style={{ padding: '16px 24px' }}>
                     <input
                       type="date"
                       value={avocado.plantingDate}
                       onChange={(e) => updateAvocado(avocado.id, 'plantingDate', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      style={{
+                        fontSize: '14px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td style={{ padding: '16px 24px' }}>
                     <select
                       value={avocado.healthStatus || 'healthy'}
                       onChange={(e) => updateAvocado(avocado.id, 'healthStatus', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      style={{
+                        fontSize: '14px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        outline: 'none',
+                        backgroundColor: 'white'
+                      }}
                     >
-                      <option value="healthy">🟢 Healthy</option>
-                      <option value="moderate">🟡 Moderate</option>
-                      <option value="poor">🔴 Poor</option>
-                      <option value="dead">⚫ Dead</option>
+                      <option value="healthy">Healthy</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="poor">Poor</option>
+                      <option value="dead">Dead</option>
                     </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td style={{ padding: '16px 24px' }}>
                     <input
                       type="date"
                       value={avocado.replanting.R1}
                       onChange={(e) => updateReplanting(avocado.id, 'R1', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      style={{
+                        fontSize: '14px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td style={{ padding: '16px 24px' }}>
                     <input
                       type="date"
                       value={avocado.replanting.R2}
                       onChange={(e) => updateReplanting(avocado.id, 'R2', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      style={{
+                        fontSize: '14px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td style={{ padding: '16px 24px' }}>
                     <input
                       type="date"
                       value={avocado.replanting.R3}
                       onChange={(e) => updateReplanting(avocado.id, 'R3', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      style={{
+                        fontSize: '14px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                     />
                   </td>
-                  <td className="px-6 py-4">
+                  <td style={{ padding: '16px 24px' }}>
                     <input
                       type="text"
                       value={avocado.notes || ''}
                       onChange={(e) => updateAvocado(avocado.id, 'notes', e.target.value)}
                       placeholder="Add notes..."
-                      className="text-sm border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      style={{
+                        fontSize: '14px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        width: '100%',
+                        outline: 'none',
+                        transition: 'border-color 0.2s'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                     />
                   </td>
                 </tr>

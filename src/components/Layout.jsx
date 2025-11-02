@@ -1,51 +1,156 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
-const Layout = ({ children, activeTab, setActiveTab, showNavigation = true }) => {
+const Layout = ({ children, user, onLogout, onShowAuth }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'plot1', label: 'Plot 1', icon: '🌱' },
-    { id: 'plot2', label: 'Plot 2', icon: '🌿' },
-    { id: 'plants', label: 'Add Plants', icon: '🌳' },
-    { id: 'replanting', label: 'Replanting', icon: '🔄' },
-    { id: 'costs', label: 'Costs', icon: '💰' },
-    { id: 'reports', label: 'Reports', icon: '📈' }
+    { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
+    { id: 'plot1', label: 'Plot 1', path: '/plot1' },
+    { id: 'plot2', label: 'Plot 2', path: '/plot2' },
+    { id: 'plants', label: 'Add Plants', path: '/plants' },
+    { id: 'replanting', label: 'Replanting', path: '/replanting' },
+    { id: 'costs', label: 'Costs', path: '/costs' },
+    { id: 'reports', label: 'Reports', path: '/reports' }
   ]
 
-  if (!showNavigation) {
-    return children
-  }
+  const currentPath = location.pathname
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-800 to-green-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="bg-white bg-opacity-20 p-2 rounded-full">
-                <span className="text-2xl">🥑</span>
+      <header style={{
+        background: 'linear-gradient(135deg, #166534 0%, #16a34a 100%)',
+        color: 'white',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 0'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                padding: '8px',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'white' }}>AV</span>
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold">Avocado Farm AV1</h1>
-                <p className="text-green-100 text-sm hidden sm:block">Professional Farm Management System</p>
+                <h1 style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  margin: 0
+                }}>
+                  Avocado Farm AV1
+                </h1>
+                <p style={{
+                  fontSize: '12px',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  margin: 0
+                }}>
+                  Professional Farm Management
+                </p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <button
-                onClick={() => setActiveTab('landing')}
-                className="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all duration-200 text-sm font-medium"
+                onClick={() => navigate('/')}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+                onMouseOut={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
               >
-                🏠 Home
+                Home
               </button>
+
+              {user ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ textAlign: 'right', display: window.innerWidth < 640 ? 'none' : 'block' }}>
+                    <p style={{ fontSize: '14px', margin: 0, fontWeight: '600' }}>
+                      {user.displayName || user.email}
+                    </p>
+                    <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)', margin: 0 }}>
+                      Cloud Sync Active
+                    </p>
+                  </div>
+                  <button
+                    onClick={onLogout}
+                    style={{
+                      backgroundColor: '#dc2626',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                    onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={onShowAuth}
+                  style={{
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}
+                >
+                  Login
+                </button>
+              )}
               
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden bg-white bg-opacity-20 p-2 rounded-lg"
+                style={{
+                  display: window.innerWidth < 768 ? 'block' : 'none',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
               >
-                <span className="text-xl">{isMobileMenuOpen ? '✕' : '☰'}</span>
+                <span style={{ fontSize: '18px' }}>{isMobileMenuOpen ? '✕' : '☰'}</span>
               </button>
             </div>
           </div>
@@ -53,53 +158,101 @@ const Layout = ({ children, activeTab, setActiveTab, showNavigation = true }) =>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white shadow-lg sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav style={{
+        backgroundColor: 'white',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 40
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px'
+        }}>
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-1">
+          <div style={{
+            display: window.innerWidth < 768 ? 'none' : 'flex',
+            gap: '4px'
+          }}>
             {tabs.map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-4 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'border-green-500 text-green-700 bg-green-50'
-                    : 'border-transparent text-gray-600 hover:text-green-600 hover:bg-green-50'
-                }`}
+                onClick={() => navigate(tab.path)}
+                style={{
+                  padding: '16px 20px',
+                  borderBottom: currentPath === tab.path ? '3px solid #16a34a' : '3px solid transparent',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: currentPath === tab.path ? '#f0fdf4' : 'transparent',
+                  color: currentPath === tab.path ? '#16a34a' : '#6b7280',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  if (currentPath !== tab.path) {
+                    e.target.style.backgroundColor = '#f9fafb'
+                    e.target.style.color = '#374151'
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (currentPath !== tab.path) {
+                    e.target.style.backgroundColor = 'transparent'
+                    e.target.style.color = '#6b7280'
+                  }
+                }}
               >
-                <span className="text-lg">{tab.icon}</span>
-                <span className="font-semibold">{tab.label}</span>
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
 
           {/* Mobile Navigation */}
-          <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-            <div className="py-2 space-y-1">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id)
-                    setIsMobileMenuOpen(false)
-                  }}
-                  className={`w-full text-left py-3 px-4 rounded-lg font-medium text-sm flex items-center gap-3 transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-green-100 text-green-800 border-l-4 border-green-500'
-                      : 'text-gray-700 hover:bg-green-50 hover:text-green-700'
-                  }`}
-                >
-                  <span className="text-lg">{tab.icon}</span>
-                  <span className="font-semibold">{tab.label}</span>
-                </button>
-              ))}
-            </div>
+          <div style={{
+            display: isMobileMenuOpen && window.innerWidth < 768 ? 'block' : 'none',
+            padding: '8px 0'
+          }}>
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  navigate(tab.path)
+                  setIsMobileMenuOpen(false)
+                }}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: currentPath === tab.path ? '#f0fdf4' : 'transparent',
+                  color: currentPath === tab.path ? '#16a34a' : '#6b7280',
+                  border: currentPath === tab.path ? '1px solid #16a34a' : '1px solid transparent',
+                  cursor: 'pointer',
+                  margin: '2px 0'
+                }}
+              >
+                <span>{tab.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="bg-gray-50 min-h-screen">
+      <main style={{
+        backgroundColor: '#f9fafb',
+        minHeight: 'calc(100vh - 140px)'
+      }}>
         {children}
       </main>
     </div>

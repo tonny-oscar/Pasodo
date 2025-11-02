@@ -1,28 +1,34 @@
-const Landing = ({ setActiveTab }) => {
+const Landing = ({ setActiveTab, user, onShowAuth }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-700 to-green-500 relative overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-30"></div>
       
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center text-white">
         <div className="mb-8">
-          <div className="text-8xl mb-4">🥑</div>
+          <div className="text-8xl mb-4"></div>
           <h1 className="text-5xl md:text-7xl font-bold mb-4">
-            Avocado Farm AV1
+                        Professional Farm Management System for Modern Agriculture
+
           </h1>
-          <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-2xl">
-            Professional Farm Management System for Modern Agriculture
-          </p>
+          
+          
+          {user && (
+            <div className="bg-white bg-opacity-20 backdrop-blur-sm p-4 rounded-xl mb-6">
+              <p className="text-green-100">Welcome back, {user.displayName || user.email}!</p>
+              <p className="text-green-200 text-sm">☁️ Your data is synced to the cloud</p>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl">
           <div className="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-xl border border-white border-opacity-20">
-            <div className="text-4xl mb-4">🌳</div>
+            <div className="text-4xl mb-4"></div>
             <h3 className="text-xl font-semibold mb-2">102 Trees</h3>
             <p className="text-green-100">Complete management of all avocado trees across two plots</p>
           </div>
           
           <div className="bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-xl border border-white border-opacity-20">
-            <div className="text-4xl mb-4">💰</div>
+            <div className="text-4xl mb-4"></div>
             <h3 className="text-xl font-semibold mb-2">Cost Tracking</h3>
             <p className="text-green-100">Monitor expenses and investments in KSh currency</p>
           </div>
@@ -42,30 +48,45 @@ const Landing = ({ setActiveTab }) => {
             Enter Farm Dashboard
           </button>
           
+          {!user && (
+            <div className="mt-4">
+              <button
+                onClick={onShowAuth}
+                className="bg-blue-600 bg-opacity-80 text-white px-6 py-3 rounded-full hover:bg-opacity-100 transition-all duration-300 mr-4"
+              >
+                 Login for Cloud Sync
+              </button>
+              <p className="text-green-200 text-sm mt-2">
+                📱 Continue without login (data saved locally)
+              </p>
+            </div>
+          )}
+          
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <button
               onClick={() => setActiveTab('plot1')}
               className="bg-blue-600 bg-opacity-80 text-white px-6 py-3 rounded-full hover:bg-opacity-100 transition-all duration-300"
             >
-              🌱 Plot 1 (42 Trees)
+               Plot 1 (42 Trees)
             </button>
             <button
               onClick={() => setActiveTab('plot2')}
               className="bg-green-600 bg-opacity-80 text-white px-6 py-3 rounded-full hover:bg-opacity-100 transition-all duration-300"
             >
-              🌿 Plot 2 (60 Trees)
+               Plot 2 (60 Trees)
             </button>
             <button
               onClick={() => setActiveTab('plants')}
               className="bg-yellow-600 bg-opacity-80 text-white px-6 py-3 rounded-full hover:bg-opacity-100 transition-all duration-300"
             >
-              🌳 Add Plants
+               Add Plants
             </button>
           </div>
         </div>
 
         <div className="absolute bottom-8 text-green-200 text-sm">
           Professional Farm Management • AV1 Project • Kenya
+          {user && <span className="ml-2">• ☁️ Cloud Enabled</span>}
         </div>
       </div>
 

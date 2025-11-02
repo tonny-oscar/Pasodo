@@ -3,6 +3,7 @@ const Replanting = ({ avocados, updateReplanting, updateAvocado }) => {
   const treesNeedingReplanting = avocados.filter(av => 
     av.plantingDate && (av.healthStatus === 'poor' || av.healthStatus === 'dead')
   )
+  const unplantedTrees = avocados.filter(av => !av.plantingDate)
 
   const handleBulkReplanting = (replantType, date) => {
     treesNeedingReplanting.forEach(tree => {
@@ -11,188 +12,540 @@ const Replanting = ({ avocados, updateReplanting, updateAvocado }) => {
     })
   }
 
+  const handlePlantTree = (treeId, date) => {
+    updateAvocado(treeId, 'plantingDate', date)
+    updateAvocado(treeId, 'healthStatus', 'healthy')
+  }
+
+  const handleBulkPlanting = (date) => {
+    unplantedTrees.forEach(tree => {
+      handlePlantTree(tree.id, date)
+    })
+  }
+
+  const downloadPDF = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Replanting Management Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #16a34a; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f8fafc; font-weight: bold; }
+            .summary { background-color: #fed7aa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>Avocado Farm AV1 - Replanting Management Report</h1>
+          <div class="summary">
+            <h3>Replanting Summary</h3>
+            <p><strong>Trees Needing Replanting:</strong> ${treesNeedingReplanting.length}</p>
+            <p><strong>R1 Replanted:</strong> ${avocados.filter(av => av.replanting.R1).length} trees</p>
+            <p><strong>Total Replanted:</strong> ${avocados.filter(av => av.replanting.R1 || av.replanting.R2 || av.replanting.R3).length} trees</p>
+            <p><strong>Unplanted Trees:</strong> ${unplantedTrees.length} trees</p>
+            <p><strong>Report Generated:</strong> ${new Date().toLocaleDateString()}</p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tree ID</th>
+                <th>Plot</th>
+                <th>Health Status</th>
+                <th>Original Planting</th>
+                <th>R1 Date</th>
+                <th>R2 Date</th>
+                <th>R3 Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${avocados.map(tree => `
+                <tr>
+                  <td>${tree.id}</td>
+                  <td>${tree.plot}</td>
+                  <td>${tree.plantingDate ? (tree.healthStatus || 'healthy') : 'Not Planted'}</td>
+                  <td>${tree.plantingDate || '-'}</td>
+                  <td>${tree.replanting.R1 || '-'}</td>
+                  <td>${tree.replanting.R2 || '-'}</td>
+                  <td>${tree.replanting.R3 || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `
+    
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    printWindow.print()
+  }
+
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3 mb-2">
-          <span className="text-orange-600">🔄</span>
-          Tree Replanting Management
-        </h2>
-        <p className="text-gray-600">Manage replanting cycles R1, R2, and R3 for your avocado trees</p>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div>
+            <h2 style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              color: '#111827',
+              marginBottom: '8px'
+            }}>
+              Tree Replanting Management
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: '16px' }}>
+              Manage replanting cycles R1, R2, and R3 for your avocado trees
+            </p>
+          </div>
+          <button
+            onClick={downloadPDF}
+            style={{
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
+          >
+            Download PDF
+          </button>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '20px',
+          marginBottom: '32px'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500', margin: 0 }}>Trees Needing Replanting</p>
+            <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#ea580c', margin: '8px 0 0 0' }}>{treesNeedingReplanting.length}</p>
+          </div>
+
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500', margin: 0 }}>R1 Replanted</p>
+            <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#3b82f6', margin: '8px 0 0 0' }}>{avocados.filter(av => av.replanting.R1).length}</p>
+          </div>
+
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500', margin: 0 }}>Total Replanted</p>
+            <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#16a34a', margin: '8px 0 0 0' }}>{avocados.filter(av => av.replanting.R1 || av.replanting.R2 || av.replanting.R3).length}</p>
+          </div>
+
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500', margin: 0 }}>Unplanted Trees</p>
+            <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#f59e0b', margin: '8px 0 0 0' }}>{unplantedTrees.length}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100 text-sm font-medium">Trees Needing Replanting</p>
-              <p className="text-3xl font-bold">{treesNeedingReplanting.length}</p>
-            </div>
-            <span className="text-4xl opacity-80">🚨</span>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">R1 Replanted</p>
-              <p className="text-3xl font-bold">{avocados.filter(av => av.replanting.R1).length}</p>
-            </div>
-            <span className="text-4xl opacity-80">🔄</span>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Total Replanted</p>
-              <p className="text-3xl font-bold">{avocados.filter(av => av.replanting.R1 || av.replanting.R2 || av.replanting.R3).length}</p>
-            </div>
-            <span className="text-4xl opacity-80">✅</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-orange-100">
-        <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-          <span className="text-orange-600">⚡</span>
-          Quick Replanting Actions
+      <div style={{
+        backgroundColor: 'white',
+        padding: '24px',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb',
+        marginBottom: '32px'
+      }}>
+        <h3 style={{
+          fontSize: '20px',
+          fontWeight: 'bold',
+          color: '#1f2937',
+          marginBottom: '24px'
+        }}>
+          Quick Actions
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <span className="text-blue-500">🔄</span>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '20px'
+        }}>
+          <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '20px'
+          }}>
+            <h4 style={{
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '12px'
+            }}>
               R1 Replanting
             </h4>
             <input
               type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-500"
+              style={{
+                width: '100%',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                marginBottom: '12px',
+                outline: 'none'
+              }}
               onChange={(e) => e.target.value && handleBulkReplanting('R1', e.target.value)}
             />
-            <p className="text-sm text-gray-600">First replanting cycle for poor/dead trees</p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>First replanting cycle for poor/dead trees</p>
           </div>
 
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <span className="text-yellow-500">🔄</span>
+          <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '20px'
+          }}>
+            <h4 style={{
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '12px'
+            }}>
               R2 Replanting
             </h4>
             <input
               type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-yellow-500"
+              style={{
+                width: '100%',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                marginBottom: '12px',
+                outline: 'none'
+              }}
               onChange={(e) => e.target.value && handleBulkReplanting('R2', e.target.value)}
             />
-            <p className="text-sm text-gray-600">Second replanting cycle</p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>Second replanting cycle</p>
           </div>
 
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <span className="text-green-500">🔄</span>
+          <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '20px'
+          }}>
+            <h4 style={{
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '12px'
+            }}>
               R3 Replanting
             </h4>
             <input
               type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-green-500"
+              style={{
+                width: '100%',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                marginBottom: '12px',
+                outline: 'none'
+              }}
               onChange={(e) => e.target.value && handleBulkReplanting('R3', e.target.value)}
             />
-            <p className="text-sm text-gray-600">Final replanting cycle</p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>Third replanting cycle</p>
+          </div>
+
+          <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '20px'
+          }}>
+            <h4 style={{
+              fontWeight: '600',
+              color: '#1f2937',
+              marginBottom: '12px'
+            }}>
+              Plant New Trees
+            </h4>
+            <input
+              type="date"
+              style={{
+                width: '100%',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                marginBottom: '12px',
+                outline: 'none'
+              }}
+              onChange={(e) => e.target.value && handleBulkPlanting(e.target.value)}
+            />
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>Plant all unplanted trees ({unplantedTrees.length} trees)</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-        <div className="px-6 py-4 bg-gradient-to-r from-orange-50 to-red-50 border-b">
-          <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <span className="text-orange-600">📋</span>
-            Individual Tree Replanting
-          </h3>
-          <p className="text-gray-600 text-sm mt-1">Manage replanting dates for each tree individually</p>
-        </div>
+      <div style={{
+        backgroundColor: 'white',
+        padding: '24px',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb'
+      }}>
+        <h3 style={{
+          fontSize: '20px',
+          fontWeight: 'bold',
+          color: '#1f2937',
+          marginBottom: '24px'
+        }}>
+          Individual Tree Management
+        </h3>
         
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Tree ID</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Plot</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Health Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Original Planting</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">R1 Date</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">R2 Date</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">R3 Date</th>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: '14px'
+          }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f8fafc' }}>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>Tree ID</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>Plot</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>Status</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>Original Planting</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>R1 Date</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>R2 Date</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>R3 Date</th>
+                <th style={{
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: '600',
+                  color: '#374151',
+                  borderBottom: '1px solid #e5e7eb'
+                }}>Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {plantedTrees.map((tree) => (
-                <tr key={tree.id} className="hover:bg-orange-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <span className={`mr-2 text-lg ${tree.plot === 'P1' ? 'text-blue-600' : 'text-green-600'}`}>
-                        {tree.plot === 'P1' ? '🌱' : '🌿'}
-                      </span>
-                      <span className="text-sm font-medium text-gray-900">{tree.id}</span>
-                    </div>
+            <tbody>
+              {avocados.map((tree, index) => (
+                <tr key={tree.id} style={{
+                  backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                  borderBottom: '1px solid #f3f4f6'
+                }}>
+                  <td style={{
+                    padding: '12px 16px',
+                    fontWeight: '500',
+                    color: '#1f2937'
+                  }}>{tree.id}</td>
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#6b7280'
+                  }}>{tree.plot}</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    {!tree.plantingDate ? (
+                      <span style={{
+                        backgroundColor: '#fef3c7',
+                        color: '#92400e',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>Not Planted</span>
+                    ) : (
+                      <span style={{
+                        backgroundColor: tree.healthStatus === 'healthy' ? '#d1fae5' : 
+                                       tree.healthStatus === 'poor' ? '#fed7aa' : '#fecaca',
+                        color: tree.healthStatus === 'healthy' ? '#065f46' : 
+                               tree.healthStatus === 'poor' ? '#9a3412' : '#991b1b',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        textTransform: 'capitalize'
+                      }}>{tree.healthStatus || 'healthy'}</span>
+                    )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      tree.plot === 'P1' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {tree.plot}
-                    </span>
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#6b7280'
+                  }}>
+                    {!tree.plantingDate ? (
+                      <input
+                        type="date"
+                        style={{
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          outline: 'none'
+                        }}
+                        onChange={(e) => e.target.value && handlePlantTree(tree.id, e.target.value)}
+                      />
+                    ) : (
+                      tree.plantingDate
+                    )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <select
-                      value={tree.healthStatus || 'healthy'}
-                      onChange={(e) => updateAvocado(tree.id, 'healthStatus', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="healthy">🟢 Healthy</option>
-                      <option value="moderate">🟡 Moderate</option>
-                      <option value="poor">🔴 Poor</option>
-                      <option value="dead">⚫ Dead</option>
-                    </select>
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#6b7280'
+                  }}>
+                    {tree.replanting.R1 ? (
+                      tree.replanting.R1
+                    ) : tree.plantingDate && (tree.healthStatus === 'poor' || tree.healthStatus === 'dead') ? (
+                      <input
+                        type="date"
+                        style={{
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          outline: 'none'
+                        }}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            updateReplanting(tree.id, 'R1', e.target.value)
+                            updateAvocado(tree.id, 'healthStatus', 'healthy')
+                          }
+                        }}
+                      />
+                    ) : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {tree.plantingDate}
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#6b7280'
+                  }}>
+                    {tree.replanting.R2 ? (
+                      tree.replanting.R2
+                    ) : tree.replanting.R1 && (tree.healthStatus === 'poor' || tree.healthStatus === 'dead') ? (
+                      <input
+                        type="date"
+                        style={{
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          outline: 'none'
+                        }}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            updateReplanting(tree.id, 'R2', e.target.value)
+                            updateAvocado(tree.id, 'healthStatus', 'healthy')
+                          }
+                        }}
+                      />
+                    ) : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="date"
-                      value={tree.replanting.R1}
-                      onChange={(e) => updateReplanting(tree.id, 'R1', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    />
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#6b7280'
+                  }}>
+                    {tree.replanting.R3 ? (
+                      tree.replanting.R3
+                    ) : tree.replanting.R2 && (tree.healthStatus === 'poor' || tree.healthStatus === 'dead') ? (
+                      <input
+                        type="date"
+                        style={{
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          outline: 'none'
+                        }}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            updateReplanting(tree.id, 'R3', e.target.value)
+                            updateAvocado(tree.id, 'healthStatus', 'healthy')
+                          }
+                        }}
+                      />
+                    ) : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="date"
-                      value={tree.replanting.R2}
-                      onChange={(e) => updateReplanting(tree.id, 'R2', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500"
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="date"
-                      value={tree.replanting.R3}
-                      onChange={(e) => updateReplanting(tree.id, 'R3', e.target.value)}
-                      className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500"
-                    />
+                  <td style={{ padding: '12px 16px' }}>
+                    {tree.plantingDate && (
+                      <select
+                        value={tree.healthStatus || 'healthy'}
+                        onChange={(e) => updateAvocado(tree.id, 'healthStatus', e.target.value)}
+                        style={{
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          outline: 'none',
+                          backgroundColor: 'white'
+                        }}
+                      >
+                        <option value="healthy">Healthy</option>
+                        <option value="poor">Poor</option>
+                        <option value="dead">Dead</option>
+                      </select>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        {plantedTrees.length === 0 && (
-          <div className="text-center py-16">
-            <span className="text-8xl mb-6 block opacity-50">🌱</span>
-            <p className="text-gray-500 text-xl mb-2">No trees planted yet</p>
-            <p className="text-gray-400">Plant some trees first to manage replanting</p>
-          </div>
-        )}
       </div>
     </div>
   )

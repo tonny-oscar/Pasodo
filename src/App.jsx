@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import Layout from './components/Layout'
-import Landing from './pages/Landing'
+import ProtectedRoute from './components/ProtectedRoute'
+import AuthModal from './components/AuthModal'
+import Homepage from './pages/Homepage'
 import Dashboard from './pages/Dashboard'
 import Plot1 from './pages/Plot1'
 import Plot2 from './pages/Plot2'
@@ -8,16 +11,22 @@ import AddPlants from './pages/AddPlants'
 import Replanting from './pages/Replanting'
 import CostManagement from './pages/CostManagement'
 import Reports from './pages/Reports'
+import { useAuth } from './hooks/useAuth'
+import { useFirestore } from './hooks/useFirestore'
 
-function App() {
-  const [activeTab, setActiveTab] = useState('landing')
-  
-  const [avocados, setAvocados] = useState(() => {
+const AppContent = () => {
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState('login')
+  const { user, loading: authLoading, logout } = useAuth()
+  const { avocados, costs, loading: dataLoading, saveAvocados, saveCosts } = useFirestore(user?.uid)
+  const navigate = useNavigate()
+
+  // Fallback to localStorage if not authenticated
+  const [localAvocados, setLocalAvocados] = useState(() => {
     const saved = localStorage.getItem('avocados')
     if (saved) return JSON.parse(saved)
     
     const initial = []
-    // Plot 1: AV1-AV42
     for (let i = 1; i <= 42; i++) {
       initial.push({
         id: `AV/P1/${i.toString().padStart(3, '0')}`,
@@ -32,7 +41,6 @@ function App() {
         replanting: { R1: '', R2: '', R3: '' }
       })
     }
-    // Plot 2: AV43-AV102
     for (let i = 43; i <= 102; i++) {
       initial.push({
         id: `AV/P2/${i.toString().padStart(3, '0')}`,
@@ -50,33 +58,59 @@ function App() {
     return initial
   })
 
-  const [costs, setCosts] = useState(() => {
+  const [localCosts, setLocalCosts] = useState(() => {
     const saved = localStorage.getItem('costs')
     return saved ? JSON.parse(saved) : []
   })
 
-  const saveAvocados = (newAvocados) => {
-    setAvocados(newAvocados)
-    localStorage.setItem('avocados', JSON.stringify(newAvocados))
+  const currentAvocados = user ? avocados : localAvocados
+  const currentCosts = user ? costs : localCosts
+
+  const saveCurrentAvocados = (newAvocados) => {
+    console.log('saveCurrentAvocados called:', { user: user?.email, authenticated: !!user })
+    
+    if (user) {
+      console.log('Saving to Firebase for user:', user.email)
+      saveAvocados(newAvocados)
+    } else {
+      console.log('Saving to localStorage (not authenticated)')
+      setLocalAvocados(newAvocados)
+      localStorage.setItem('avocados', JSON.stringify(newAvocados))
+    }
   }
 
-  const saveCosts = (newCosts) => {
-    setCosts(newCosts)
-    localStorage.setItem('costs', JSON.stringify(newCosts))
+  const saveCurrentCosts = (newCosts) => {
+    if (user) {
+      saveCosts(newCosts)
+    } else {
+      setLocalCosts(newCosts)
+      localStorage.setItem('costs', JSON.stringify(newCosts))
+    }
   }
 
   const updateAvocado = (id, field, value) => {
-    const updated = avocados.map(av => 
-      av.id === id ? { ...av, [field]: value } : av
-    )
-    saveAvocados(updated)
+    console.log('updateAvocado called:', { id, field, user: user?.email })
+    
+    let updated
+    if (id === 'bulk_update' && field === 'bulk') {
+      // Handle bulk update - value is the entire updated array
+      updated = value
+    } else {
+      // Handle individual update
+      updated = currentAvocados.map(av => 
+        av.id === id ? { ...av, [field]: value } : av
+      )
+    }
+    
+    console.log('Saving to Firebase:', { user: user?.email, treeCount: updated.length })
+    saveCurrentAvocados(updated)
   }
 
   const updateReplanting = (id, replantType, date) => {
-    const updated = avocados.map(av => 
+    const updated = currentAvocados.map(av => 
       av.id === id ? { ...av, replanting: { ...av.replanting, [replantType]: date } } : av
     )
-    saveAvocados(updated)
+    saveCurrentAvocados(updated)
   }
 
   const addCost = () => {
@@ -90,51 +124,159 @@ function App() {
       paymentMethod: '',
       notes: ''
     }
-    saveCosts([...costs, newCost])
+    saveCurrentCosts([...currentCosts, newCost])
   }
 
   const updateCost = (id, field, value) => {
-    const updated = costs.map(cost => 
+    const updated = currentCosts.map(cost => 
       cost.id === id ? { ...cost, [field]: value } : cost
     )
-    saveCosts(updated)
+    saveCurrentCosts(updated)
   }
 
   const deleteCost = (id) => {
-    saveCosts(costs.filter(cost => cost.id !== id))
+    saveCurrentCosts(currentCosts.filter(cost => cost.id !== id))
   }
 
-  const renderActiveTab = () => {
-    switch (activeTab) {
-      case 'landing':
-        return <Landing setActiveTab={setActiveTab} />
-      case 'dashboard':
-        return <Dashboard avocados={avocados} costs={costs} />
-      case 'plot1':
-        return <Plot1 avocados={avocados} updateAvocado={updateAvocado} updateReplanting={updateReplanting} />
-      case 'plot2':
-        return <Plot2 avocados={avocados} updateAvocado={updateAvocado} updateReplanting={updateReplanting} />
-      case 'plants':
-        return <AddPlants avocados={avocados} updateAvocado={updateAvocado} />
-      case 'replanting':
-        return <Replanting avocados={avocados} updateReplanting={updateReplanting} updateAvocado={updateAvocado} />
-      case 'costs':
-        return <CostManagement costs={costs} addCost={addCost} updateCost={updateCost} deleteCost={deleteCost} />
-      case 'reports':
-        return <Reports avocados={avocados} costs={costs} />
-      default:
-        return <Landing setActiveTab={setActiveTab} />
-    }
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false)
+    navigate('/dashboard')
+  }
+
+  const handleShowAuth = (mode = 'login') => {
+    setAuthMode(mode)
+    setShowAuthModal(true)
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
+
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #14532d 0%, #16a34a 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ color: 'white', textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: '600' }}>Loading Farm...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <Layout 
-      activeTab={activeTab} 
-      setActiveTab={setActiveTab}
-      showNavigation={activeTab !== 'landing'}
-    >
-      {renderActiveTab()}
-    </Layout>
+    <>
+      <Routes>
+        {/* Public Routes */}
+        <Route 
+          path="/" 
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Homepage onShowAuth={handleShowAuth} />
+          } 
+        />
+        
+        {/* Protected Routes */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <Dashboard avocados={currentAvocados} costs={currentCosts} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/plot1" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <Plot1 avocados={currentAvocados} updateAvocado={updateAvocado} updateReplanting={updateReplanting} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/plot2" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <Plot2 avocados={currentAvocados} updateAvocado={updateAvocado} updateReplanting={updateReplanting} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/plants" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <AddPlants avocados={currentAvocados} updateAvocado={updateAvocado} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/replanting" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <Replanting avocados={currentAvocados} updateReplanting={updateReplanting} updateAvocado={updateAvocado} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/costs" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <CostManagement costs={currentCosts} addCost={addCost} updateCost={updateCost} deleteCost={deleteCost} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/reports" 
+          element={
+            <ProtectedRoute user={user}>
+              <Layout user={user} onLogout={handleLogout} onShowAuth={handleShowAuth}>
+                <Reports avocados={currentAvocados} costs={currentCosts} />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Catch all route - redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+        initialMode={authMode}
+      />
+    </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   )
 }
 
