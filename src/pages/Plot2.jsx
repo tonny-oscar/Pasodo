@@ -273,23 +273,28 @@ const Plot2 = ({ avocados, updateAvocado, updateReplanting }) => {
                     />
                   </td>
                   <td style={{ padding: '16px 24px' }}>
-                    <select
-                      value={avocado.healthStatus || 'healthy'}
-                      onChange={(e) => updateAvocado(avocado.id, 'healthStatus', e.target.value)}
-                      style={{
-                        fontSize: '14px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '8px',
-                        padding: '8px 12px',
-                        outline: 'none',
-                        backgroundColor: 'white'
-                      }}
-                    >
-                      <option value="healthy">Healthy</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="poor">Poor</option>
-                      <option value="dead">Dead</option>
-                    </select>
+                    {avocado.plantingDate ? (
+                      <select
+                        value={avocado.healthStatus || ''}
+                        onChange={(e) => updateAvocado(avocado.id, 'healthStatus', e.target.value)}
+                        style={{
+                          fontSize: '14px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          outline: 'none',
+                          backgroundColor: 'white'
+                        }}
+                      >
+                        <option value="">Select Status</option>
+                        <option value="healthy">Healthy</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="poor">Poor</option>
+                        <option value="dead">Dead</option>
+                      </select>
+                    ) : (
+                      <span style={{ color: '#9ca3af', fontSize: '14px' }}>Not Planted</span>
+                    )}
                   </td>
                   <td style={{ padding: '16px 24px' }}>
                     <input
