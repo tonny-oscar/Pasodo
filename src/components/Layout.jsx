@@ -151,23 +151,6 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                   </button>
                 )}
 
-                <button
-                  onClick={() => navigate('/')}
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  Home
-                </button>
-
                 {user ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ textAlign: 'right' }}>
@@ -179,11 +162,33 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                       </p>
                     </div>
                     <button
+                      onClick={() => navigate('/')}
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        borderTop: 'none',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Home
+                    </button>
+                    <button
                       onClick={onLogout}
                       style={{
                         backgroundColor: '#dc2626',
                         color: 'white',
-                        border: 'none',
+                        borderTop: 'none',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: 'none',
                         padding: '8px 16px',
                         borderRadius: '20px',
                         fontSize: '14px',
@@ -196,22 +201,46 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={onShowAuth}
-                    style={{
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    Login
-                  </button>
+                  <>
+                    <button
+                      onClick={() => navigate('/')}
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        borderTop: 'none',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Home
+                    </button>
+                    <button
+                      onClick={onShowAuth}
+                      style={{
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        borderTop: 'none',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Login
+                    </button>
+                  </>
                 )}
               </div>
               
@@ -225,46 +254,15 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                   backgroundColor: isOnline ? '#10b981' : '#ef4444'
                 }}></div>
                 
-                {user ? (
-                  <button
-                    onClick={onLogout}
-                    style={{
-                      backgroundColor: '#dc2626',
-                      color: 'white',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '16px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Logout
-                  </button>
-                ) : (
-                  <button
-                    onClick={onShowAuth}
-                    style={{
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '16px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Login
-                  </button>
-                )}
-                
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.2)',
                     color: 'white',
-                    border: 'none',
+                    borderTop: 'none',
+                    borderLeft: 'none',
+                    borderRight: 'none',
+                    borderBottom: 'none',
                     padding: '8px',
                     borderRadius: '8px',
                     cursor: 'pointer',
@@ -307,6 +305,9 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                 onClick={() => navigate(tab.path)}
                 style={{
                   padding: '12px 16px',
+                  borderTop: 'none',
+                  borderLeft: 'none',
+                  borderRight: 'none',
                   borderBottom: currentPath === tab.path ? '3px solid #16a34a' : '3px solid transparent',
                   fontWeight: '600',
                   fontSize: '13px',
@@ -316,7 +317,6 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                   transition: 'all 0.2s ease',
                   backgroundColor: currentPath === tab.path ? '#f0fdf4' : 'transparent',
                   color: currentPath === tab.path ? '#16a34a' : '#6b7280',
-                  border: 'none',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
                   minWidth: 'fit-content'
@@ -364,7 +364,10 @@ const Layout = ({ children, user, onLogout, onShowAuth }) => {
                   transition: 'all 0.2s ease',
                   backgroundColor: currentPath === tab.path ? '#f0fdf4' : 'transparent',
                   color: currentPath === tab.path ? '#16a34a' : '#6b7280',
-                  border: currentPath === tab.path ? '1px solid #16a34a' : '1px solid transparent',
+                  borderTop: currentPath === tab.path ? '1px solid #16a34a' : '1px solid transparent',
+                  borderLeft: currentPath === tab.path ? '1px solid #16a34a' : '1px solid transparent',
+                  borderRight: currentPath === tab.path ? '1px solid #16a34a' : '1px solid transparent',
+                  borderBottom: currentPath === tab.path ? '1px solid #16a34a' : '1px solid transparent',
                   cursor: 'pointer',
                   margin: '2px 0'
                 }}
