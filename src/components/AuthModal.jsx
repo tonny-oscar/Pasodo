@@ -14,16 +14,39 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = 'login' }) => {
     setLoading(true)
     setError('')
 
+    console.log('Email auth attempt:', { isLogin, email, hasPassword: !!password })
+
     try {
+      let result
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password)
+        console.log('Attempting sign in with email/password')
+        result = await signInWithEmailAndPassword(auth, email, password)
       } else {
-        await createUserWithEmailAndPassword(auth, email, password)
+        console.log('Attempting create user with email/password')
+        result = await createUserWithEmailAndPassword(auth, email, password)
       }
+      
+      console.log('Email auth successful:', result.user.email)
       onSuccess()
       onClose()
     } catch (err) {
-      setError(err.message)
+      console.error('Email auth error:', err)
+      
+      // Provide user-friendly error messages
+      let errorMessage = err.message
+      if (err.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email. Please sign up first.'
+      } else if (err.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password. Please try again.'
+      } else if (err.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists. Please sign in instead.'
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = 'Password should be at least 6 characters long.'
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.'
+      }
+      
+      setError(errorMessage)
     }
     setLoading(false)
   }
@@ -32,12 +55,24 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = 'login' }) => {
     setLoading(true)
     setError('')
 
+    console.log('Google auth attempt')
+
     try {
-      await signInWithPopup(auth, googleProvider)
+      const result = await signInWithPopup(auth, googleProvider)
+      console.log('Google auth successful:', result.user.email)
       onSuccess()
       onClose()
     } catch (err) {
-      setError(err.message)
+      console.error('Google auth error:', err)
+      
+      let errorMessage = err.message
+      if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in was cancelled. Please try again.'
+      } else if (err.code === 'auth/popup-blocked') {
+        errorMessage = 'Popup was blocked. Please allow popups and try again.'
+      }
+      
+      setError(errorMessage)
     }
     setLoading(false)
   }
