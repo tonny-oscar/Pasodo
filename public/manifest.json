@@ -1,0 +1,25 @@
+{
+  "name": "Avocado Farm AV1",
+  "short_name": "Avocado Farm",
+  "description": "Farm management system for avocado trees",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/images/pexels-matreding-11911814.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/pexels-matreding-11911814.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

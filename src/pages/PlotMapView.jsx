@@ -61,7 +61,7 @@ const PlotMapView = ({ avocados, updateAvocado }) => {
         {tree.id.split('/')[2]}
       </div>
       <div style={{ fontSize: '10px', opacity: 0.8 }}>
-        R{row}P{position}
+        R{row}AV{position}
       </div>
       <div style={{ fontSize: '10px', marginTop: '4px' }}>
         {!tree.plantingDate ? 'Not Planted' : 

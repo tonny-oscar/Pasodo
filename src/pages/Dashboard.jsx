@@ -9,18 +9,18 @@ const Dashboard = ({ avocados, costs }) => {
   const unhealthyTrees = avocados.filter(av => av.healthStatus === 'poor' || av.healthStatus === 'dead').length
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+    <div className="page-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <h2 style={{
-          fontSize: '32px',
+          fontSize: '28px',
           fontWeight: 'bold',
           color: '#111827',
           marginBottom: '8px'
         }}>
           Farm Overview Dashboard
         </h2>
-        <p style={{ color: '#6b7280', fontSize: '16px' }}>
+        <p style={{ color: '#6b7280', fontSize: '14px' }}>
           Complete overview of your avocado farm operations and performance
         </p>
       </div>
@@ -28,8 +28,8 @@ const Dashboard = ({ avocados, costs }) => {
       {/* Key Metrics Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '20px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '16px',
         marginBottom: '32px'
       }}>
         <div style={{
@@ -90,8 +90,8 @@ const Dashboard = ({ avocados, costs }) => {
       {/* Plot Summary Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '24px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '20px',
         marginBottom: '32px'
       }}>
         <div style={{
@@ -198,8 +198,8 @@ const Dashboard = ({ avocados, costs }) => {
       {/* Bottom Section */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-        gap: '24px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '20px'
       }}>
         {/* Financial Overview */}
         <div style={{
